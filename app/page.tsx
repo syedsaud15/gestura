@@ -5,7 +5,7 @@ import { Orbit, Dna, Sparkles, MousePointer2, Play, Pause, Maximize2, RotateCcw,
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ParticleEngine, type SceneName } from '@/lib/particles';
+import { createParticleEngine, type ParticleController, type SceneName } from '@/lib/particles';
 import { HandControl } from '@/components/hand-control';
 import { registerComposerTools } from '@/lib/webmcp';
 
@@ -21,7 +21,7 @@ const palettes = [{ name: 'Ultraviolet', colors: ['#936cff', '#36d7ed'] }, { nam
 
 export default function Home() {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const engine = useRef<ParticleEngine | null>(null);
+  const engine = useRef<ParticleController | null>(null);
   const [scene, setScene] = useState<SceneName>('galaxy');
   const [group, setGroup] = useState('cosmos');
   const [palette, setPalette] = useState(0);
@@ -43,10 +43,10 @@ export default function Home() {
   useEffect(() => {
     if (!canvas.current) return;
     try {
-      const e = new ParticleEngine(canvas.current, setStats); engine.current = e;
+      const e = createParticleEngine(canvas.current, setStats); engine.current = e;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setPaused(true); setRotate(false); }
       return () => { e.dispose(); engine.current = null; };
-    } catch { setError('This browser could not start 3D graphics. Try a browser with hardware acceleration enabled.'); }
+    } catch { setError('This browser could not start graphics. Please try another browser.'); }
   }, []);
   useEffect(() => { engine.current?.setScene(scene, signature); }, [scene, signature]);
   useEffect(() => { engine.current?.configure({ speed: speed / 100, spread: spread / 100, glow: glow / 100, rotate, paused, palette: palettes[palette].colors }); }, [speed, spread, glow, rotate, paused, palette]);

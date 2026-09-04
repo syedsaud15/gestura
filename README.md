@@ -9,7 +9,7 @@ A browser-based particle studio: sculpt a galaxy, explore a wave field, or turn 
 - Drag to orbit, scroll to zoom, colour palettes, expansion and luminosity controls.
 - Hand tracking: palm movement, pinch attraction, fist collapse, open-palm burst and two-hand expansion.
 - Fullscreen presentation, timed showcase, PNG export and device-local creation presets.
-- 24,000 main particles on desktop and 12,000 on narrow screens, plus 1,500 background stars. FPS is measured live; it is not a promised frame rate.
+- 24,000 WebGL particles on capable desktop browsers, with a Canvas fallback for restricted browser environments. FPS is measured live; it is not a promised frame rate.
 
 ## Run
 
@@ -58,7 +58,7 @@ The geometry buffers upload on scene changes; animation updates uniforms instead
 
 ## Scope and verification
 
-These are artistic mathematical scenes and visual force fields, not astrophysics, molecular dynamics or physically accurate N-body simulations. Webcam tracking depends on lighting, visibility and the device. Browser visual QA and a real-camera gesture session have not been performed in this initial delivery. Automated checks cover geometry and gesture interpretation; production compilation and static-page generation are also checked.
+These are artistic mathematical scenes and visual force fields, not astrophysics, molecular dynamics or physically accurate N-body simulations. Webcam tracking depends on lighting, visibility and the device. Galaxy, Saturn, custom text, scene switching and the supernova control were checked in the restricted in-app browser; a real-camera gesture session is still pending. Automated checks cover geometry and gesture interpretation; production compilation and static-page generation are also checked.
 
 The optional `compose_particle_scene` WebMCP tool is feature-detected. Its registration and execution require a compatible host; that host integration has not been verified here.
 

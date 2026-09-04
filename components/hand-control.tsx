@@ -2,9 +2,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Hand, VideoOff, LoaderCircle } from 'lucide-react';
 import { interpretHands } from '@/lib/gestures';
-import type { ParticleEngine } from '@/lib/particles';
+import type { ParticleController } from '@/lib/particles';
 
-export function HandControl({ engine }: { engine: { current: ParticleEngine | null } }) {
+export function HandControl({ engine }: { engine: { current: ParticleController | null } }) {
   const video = useRef<HTMLVideoElement>(null), worker = useRef<Worker | null>(null), stream = useRef<MediaStream | null>(null);
   const frame = useRef(0), generation = useRef(0), active = useRef(false), busy = useRef(false), initTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [state, setState] = useState<'off'|'loading'|'on'>('off'), [status, setStatus] = useState(''), [failure, setFailure] = useState('');
@@ -50,11 +50,11 @@ export function HandControl({ engine }: { engine: { current: ParticleEngine | nu
       w.postMessage({type:'init'});
     } catch(error) {
       if(run!==generation.current)return;stop();setState('off');
-      setFailure(error instanceof DOMException && error.name==='NotAllowedError' ? 'Camera permission was denied. Allow it in your browser, then retry.' : error instanceof DOMException && error.name==='NotFoundError' ? 'No webcam found. Connect one, or use the mouse controls.' : 'Camera is unavailable. Close other camera apps and retry.');
+      setFailure(error instanceof DOMException && error.name==='NotAllowedError' ? 'Camera is blocked here. Open this link in Chrome or Edge, allow Camera, then retry.' : error instanceof DOMException && error.name==='NotFoundError' ? 'No webcam found. Connect one, or use the mouse controls.' : 'Camera is unavailable. Close other camera apps and retry.');
     }
   }
   return <div className={`gesture-card chrome ${state==='on'?'tracking':''}`}>
-    <video ref={video} muted playsInline className={state==='on'?'camera-preview':'camera-hidden'} aria-label="Your camera preview"/>
+    <video ref={video} muted playsInline aria-hidden={state!=='on'} className={state==='on'?'camera-preview':'camera-hidden'} aria-label="Your camera preview"/>
     <div className="gesture-heading"><Hand size={22}/><strong>{state==='on'?'Hand control active':'Your hands. The controls.'}</strong></div>
     <p>{state==='off'?'Move your palm to shape the scene.':status}</p>
     {state==='on'&&<p className="gesture-guide">Pinch to attract · two hands to expand<br/>Fist, then open palm to explode.</p>}
