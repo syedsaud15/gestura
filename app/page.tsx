@@ -63,7 +63,7 @@ export default function Home() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement).matches('input,textarea,[role="slider"]')) return;
-      if (e.code === 'Space') { e.preventDefault(); setPaused(v => !v); }
+      if (e.code === 'Space' && !(e.target as HTMLElement).closest('button,a,[role="tab"],[role="switch"]')) { e.preventDefault(); setPaused(v => !v); }
       if (e.key.toLowerCase() === 'h') setCinema(v => !v);
       if (e.key === 'Escape') setCinema(false);
       if (e.key.toLowerCase() === 'e') engine.current?.burst();

@@ -17,7 +17,7 @@ export function HandControl({ engine }: { engine: { current: ParticleEngine | nu
   useEffect(() => () => stop(), [stop]);
   async function start() {
     setFailure('');setState('loading');setStatus('Preparing hand tracking…');
-    const run=++generation.current;let wasFist=false,lastBurst=0,lastFrame=0,lastVideo=-1;
+    const run=++generation.current;let fistAt=0,lastBurst=0,lastFrame=0,lastVideo=-1;
     try {
       if(!navigator.mediaDevices?.getUserMedia)throw new Error('Camera access needs a secure browser connection.');
       const media=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'},audio:false});
@@ -33,10 +33,11 @@ export function HandControl({ engine }: { engine: { current: ParticleEngine | nu
         if(data.type==='error')fail();
         if(data.type==='hands'){
           busy.current=false;const hand=interpretHands(data.landmarks);
-          if(!hand){engine.current?.clearHand();setStatus('Looking for your hands');wasFist=false;return;}
+          if(!hand){engine.current?.clearHand();setStatus('Looking for your hands');fistAt=0;return;}
           engine.current?.setHand(hand.x,hand.y,hand.scale,hand.force);setStatus(hand.label);
-          if(wasFist&&hand.open&&performance.now()-lastBurst>1600){engine.current?.burst();lastBurst=performance.now();}
-          wasFist=hand.fist;
+          const now=performance.now();
+          if(hand.fist)fistAt=now;
+          if(fistAt&&hand.open&&now-fistAt<1800&&now-lastBurst>1600){engine.current?.burst();lastBurst=now;fistAt=0;}
         }
       };
       async function tick(now:number){
