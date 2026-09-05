@@ -7,7 +7,7 @@ export function registerComposerTools(actions:{selectScene:(scene:SceneName,text
   const lifecycle=new AbortController();
   const sceneNames=['galaxy','blackhole','saturn','dna','knot','wave','heart','text'];
   const tool:Tool={
-    name:'compose_particle_scene',description:'Select a particle scene in Reality Composer, optionally setting the text for a signature scene.',
+    name:'compose_particle_scene',description:'Select a particle experiment in GESTURA, optionally setting the text for a signature scene.',
     inputSchema:{type:'object',properties:{scene:{type:'string',enum:sceneNames},text:{type:'string',maxLength:12}},required:['scene'],additionalProperties:false},
     annotations:{readOnlyHint:false,untrustedContentHint:false},
     execute(input){

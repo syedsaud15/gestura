@@ -1,8 +1,12 @@
-# Reality Composer
+# GESTURA
 
-A browser-based particle studio: sculpt a galaxy, explore a wave field, or turn your initials into light. Built around a real WebGL canvas, with optional webcam gestures processed locally in a dedicated worker.
+A real-time neural gesture physics engine. GESTURA tracks 21 hand landmarks on-device, classifies gestures in a dedicated worker and maps them into GPU particle-force uniforms at interactive frame rates.
 
 ## Immersive release
+
+- Two purpose-built views: a clean Experience mode for demos and a live Engineering mode that exposes the complete computer-vision pipeline.
+- Visible skeletal landmark overlay, hand count, gesture state, inference latency, render rate and particle telemetry.
+- Three force kernels—gravity, orbit and repulsion—plus pinch attraction, fist compression and two-hand expansion.
 
 - Eight deterministic scenes: Andromeda galaxy, black-hole singularity, Saturn, double helix, torus knot, wave field, heart field and custom signature.
 - GPU-interpolated transitions, additive particle glow and a supernova burst.

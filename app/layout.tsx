@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Reality Composer — Interactive Particle Studio',
-  description: 'Shape a universe of light. Explore galaxies, particle fields and your own creations with interactive 3D controls.',
+  title: 'GESTURA — Neural Gesture Physics Engine',
+  description: 'A real-time computer-vision interface for controlling GPU particle physics with your hands.',
 };
 
 export default function RootLayout({

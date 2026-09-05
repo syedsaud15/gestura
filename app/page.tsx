@@ -1,7 +1,7 @@
 
 'use client';
 import { useEffect,useRef,useState } from 'react';
-import { Aperture,Atom,Camera,ChevronLeft,ChevronRight,CircleDot,Dna,Fullscreen,Heart,Infinity as InfinityIcon,MousePointer2,Pause,Play,Radio,RotateCcw,Settings2,Sparkles,Video,X,Zap } from 'lucide-react';
+import { Aperture,Atom,Camera,ChevronLeft,ChevronRight,CircleDot,Cpu,Dna,Eye,Fullscreen,Gauge,Hand,Heart,Infinity as InfinityIcon,MousePointer2,Pause,Play,Radio,RotateCcw,Settings2,Sparkles,Video,X,Zap } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { createParticleEngine,type ParticleController,type SceneName } from '@/lib/particles';
@@ -22,7 +22,7 @@ const palettes=[['#c9bcff','#62e7ff'],['#ffbd6e','#ff5ca8'],['#72ffe1','#5c8dff'
 
 export default function Home(){
  const canvas=useRef<HTMLCanvasElement>(null),engine=useRef<ParticleController|null>(null),recorder=useRef<MediaRecorder|null>(null),chunks=useRef<Blob[]>([]);
- const [scene,setScene]=useState<SceneName>('galaxy'),[speed,setSpeed]=useState(42),[spread,setSpread]=useState(100),[glow,setGlow]=useState(72),[rotate,setRotate]=useState(true),[paused,setPaused]=useState(false),[settings,setSettings]=useState(false),[hud,setHud]=useState(true),[showcase,setShowcase]=useState(false),[recording,setRecording]=useState(false),[intro,setIntro]=useState(true),[signature,setSignature]=useState('SYED'),[stats,setStats]=useState({fps:0,count:24000}),[palette,setPalette]=useState(0),[notice,setNotice]=useState('');
+ const [scene,setScene]=useState<SceneName>('galaxy'),[speed,setSpeed]=useState(42),[spread,setSpread]=useState(100),[glow,setGlow]=useState(72),[rotate,setRotate]=useState(true),[paused,setPaused]=useState(false),[settings,setSettings]=useState(false),[hud,setHud]=useState(true),[showcase,setShowcase]=useState(false),[recording,setRecording]=useState(false),[intro,setIntro]=useState(true),[signature,setSignature]=useState('SYED'),[stats,setStats]=useState({fps:0,count:24000}),[palette,setPalette]=useState(0),[notice,setNotice]=useState(''),[engineering,setEngineering]=useState(false),[physics,setPhysics]=useState('ORBIT'),[vision,setVision]=useState({active:false,gesture:'OFFLINE',hands:0,latency:0});
  const active=scenes.find(s=>s.id===scene)!,index=scenes.findIndex(s=>s.id===scene);
  useEffect(()=>{if(!canvas.current)return;const e=createParticleEngine(canvas.current,setStats);engine.current=e;return()=>{e.dispose();engine.current=null;}},[]);
  useEffect(()=>{engine.current?.setScene(scene,signature);const suggested=scenes.find(s=>s.id===scene)!.colors;engine.current?.configure({palette:suggested});},[scene,signature]);
@@ -43,15 +43,22 @@ export default function Home(){
   <canvas ref={canvas} className="world" aria-label={`${active.name}: ${active.label} interactive particle scene`}/>
   <div className="grain" aria-hidden="true"/>
   <header className="hud top-hud">
-   <a href="/" className="identity"><span className="identity-mark"><Atom/></span><span><strong>REALITY</strong><em>COMPOSER</em></span></a>
-   <div className="system"><i/> LIVE ENGINE <span>{stats.fps||'—'} FPS</span><span>{stats.count.toLocaleString()} POINTS</span></div>
+   <a href="/" className="identity"><span className="identity-mark"><Atom/></span><span><strong>GESTURA</strong><em>NEURAL PHYSICS</em></span></a>
+   <div className="system"><i/> GPU ENGINE <span>{stats.fps||'—'} FPS</span><span>{stats.count.toLocaleString()} PARTICLES</span><span>{vision.active?`${vision.latency}MS VISION`:'VISION STANDBY'}</span></div>
    <div className="top-actions"><button className={recording?'recording':''} onClick={toggleRecord}>{recording?<><i/> Stop recording</>:<><Video/> Record</>}</button><button onClick={()=>setSettings(v=>!v)} aria-label="Open visual controls"><Settings2/></button><button onClick={fullscreen} aria-label="Enter fullscreen"><Fullscreen/></button></div>
   </header>
   <section className="hud title-block"><p>EXPERIMENT {String(index+1).padStart(2,'0')} / {String(scenes.length).padStart(2,'0')}</p><h1>{active.name}</h1><span>{active.label}</span></section>
   <div className="hud side-index" aria-hidden="true">{scenes.map((s,i)=><span key={s.id} className={s.id===scene?'active':''}>{String(i+1).padStart(2,'0')}</span>)}</div>
-  <section className="hud gesture-dock"><HandControl engine={engine}/></section>
+  <section className="hud gesture-dock"><HandControl engine={engine} onTelemetry={setVision}/></section>
+  <div className="hud mode-switch"><button className={!engineering?'active':''} onClick={()=>setEngineering(false)}><Eye/> EXPERIENCE</button><button className={engineering?'active':''} onClick={()=>setEngineering(true)}><Cpu/> ENGINEERING</button></div>
+  {engineering&&<aside className="hud engineering-panel">
+   <div className="engineering-head"><span><i/> LIVE SYSTEM</span><strong>COMPUTER VISION PIPELINE</strong></div>
+   <div className="pipeline"><div className={vision.active?'done':''}><b>01</b><span>CAMERA INPUT<small>640 × 480 stream</small></span></div><i/><div className={vision.active?'done':''}><b>02</b><span>LANDMARK MODEL<small>21 points · Web Worker</small></span></div><i/><div className={vision.hands?'done':''}><b>03</b><span>GESTURE CLASSIFIER<small>{vision.gesture}</small></span></div><i/><div className={vision.hands?'done':''}><b>04</b><span>GPU FORCE FIELD<small>Vertex shader response</small></span></div></div>
+   <div className="engineering-grid"><div><Gauge/><span>RENDER RATE</span><strong>{stats.fps||'—'}<small> FPS</small></strong></div><div><Cpu/><span>INFERENCE</span><strong>{vision.active?vision.latency:'—'}<small> MS</small></strong></div><div><Hand/><span>HANDS</span><strong>{vision.hands}<small> / 2</small></strong></div><div><Atom/><span>PARTICLES</span><strong>{Math.round(stats.count/1000)}K</strong></div></div>
+  </aside>}
   {settings&&<aside className="hud inspector">
    <div className="inspector-head"><div><small>FIELD CONTROLS</small><strong>Shape the energy</strong></div><button onClick={()=>setSettings(false)} aria-label="Close controls"><X/></button></div>
+   <label>Physics kernel <output>{physics}</output></label><div className="physics-row">{[['GRAVITY',-1],['ORBIT',0],['REPULSE',.8]].map(([name,force])=><button className={physics===name?'active':''} key={String(name)} onClick={()=>{setPhysics(String(name));engine.current?.setForce(Number(force))}}>{name}</button>)}</div>
    <label>Intensity <output>{glow}%</output></label><Slider value={[glow]} min={10} max={100} onValueChange={v=>setGlow(Array.isArray(v)?v[0]:v)}/>
    <label>Expansion <output>{spread}%</output></label><Slider value={[spread]} min={45} max={170} onValueChange={v=>setSpread(Array.isArray(v)?v[0]:v)}/>
    <label>Motion <output>{(speed/42).toFixed(1)}×</output></label><Slider value={[speed]} min={0} max={100} onValueChange={v=>setSpeed(Array.isArray(v)?v[0]:v)}/>
@@ -70,7 +77,7 @@ export default function Home(){
   {!hud&&<button className="show-hud" onClick={()=>setHud(true)}>SHOW INTERFACE <kbd>H</kbd></button>}
   {notice&&<div className="notice" role="status">{notice}</div>}
   {intro&&<div className="intro">
-   <div className="intro-orbit"><span/><i/><b/></div><p>INTERACTIVE PARTICLE SYSTEM</p><h2>Don’t watch it.<br/><em>Control it.</em></h2><div className="intro-steps"><span><b>01</b> Pick a world</span><span><b>02</b> Move the field</span><span><b>03</b> Make an impact</span></div><button onClick={()=>setIntro(false)}>ENTER THE EXPERIENCE <ArrowIcon/></button><small>Works with mouse · camera gestures are optional</small>
+   <div className="intro-orbit"><span/><i/><b/></div><p>REAL-TIME COMPUTER VISION × GPU PHYSICS</p><h2>Your hands become<br/><em>the interface.</em></h2><div className="intro-steps"><span><b>01</b> Activate vision</span><span><b>02</b> Calibrate your palm</span><span><b>03</b> Bend the particle field</span></div><button onClick={()=>setIntro(false)}>INITIALIZE GESTURA <ArrowIcon/></button><small>No uploads · inference runs privately on your device</small>
   </div>}
  </main>
 }
