@@ -15,6 +15,7 @@ export function HandControl({ engine }: { engine: { current: ParticleController 
     if(video.current)video.current.srcObject=null;busy.current=false;engine.current?.clearHand();
   }, [engine]);
   useEffect(() => () => stop(), [stop]);
+  useEffect(()=>{if(!failure)return;const timer=setTimeout(()=>setFailure(''),6500);return()=>clearTimeout(timer)},[failure]);
   async function start() {
     setFailure('');setState('loading');setStatus('Preparing hand tracking…');
     const run=++generation.current;let fistAt=0,lastBurst=0,lastFrame=0,lastVideo=-1;
@@ -60,6 +61,6 @@ export function HandControl({ engine }: { engine: { current: ParticleController 
     {state==='on'&&<p className="gesture-guide">Pinch to attract · two hands to expand<br/>Fist, then open palm to explode.</p>}
     <button className="gesture-button" onClick={()=>state==='off'?void start():(stop(),setState('off'))}>{state==='loading'?<><LoaderCircle className="spin" size={15}/> Cancel setup</>:state==='on'?<><VideoOff size={15}/> Turn camera off</>:<>Enable hand control <span>↗</span></>}</button>
     <small>{state==='off'?'Camera off · video stays on your device':'Video processed on your device'}</small>
-    {failure&&<p role="alert" className="camera-error">{failure}</p>}
+    {failure&&<p role="alert" className="camera-error">{failure}<button onClick={()=>setFailure('')} aria-label="Dismiss camera message">×</button></p>}
   </div>;
 }

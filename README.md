@@ -2,13 +2,13 @@
 
 A browser-based particle studio: sculpt a galaxy, explore a wave field, or turn your initials into light. Built around a real WebGL canvas, with optional webcam gestures processed locally in a dedicated worker.
 
-## First release
+## Immersive release
 
-- Six deterministic scenes: spiral galaxy, Saturn, stellar core, double helix, wave field and custom text.
+- Eight deterministic scenes: Andromeda galaxy, black-hole singularity, Saturn, double helix, torus knot, wave field, heart field and custom signature.
 - GPU-interpolated transitions, additive particle glow and a supernova burst.
 - Drag to orbit, scroll to zoom, colour palettes, expansion and luminosity controls.
 - Hand tracking: palm movement, pinch attraction, fist collapse, open-palm burst and two-hand expansion.
-- Fullscreen presentation, timed showcase, PNG export and device-local creation presets.
+- Cinematic onboarding, fullscreen presentation, timed showcase, PNG export and one-click WebM showcase recording.
 - 24,000 WebGL particles on capable desktop browsers, with a Canvas fallback for restricted browser environments. FPS is measured live; it is not a promised frame rate.
 
 ## Run
@@ -31,8 +31,8 @@ The static production site is in `dist/client`. Serve it over HTTPS (or localhos
 | Drag / touch-drag | Orbit |
 | Scroll | Zoom |
 | Space | Pause / resume |
-| 1–6 | Select scene |
-| E | Supernova |
+| Left / right arrow | Select scene |
+| E | Impact burst |
 | H | Hide / show controls |
 | Escape | Leave presentation |
 | Pinch | Attract particles |
@@ -51,14 +51,14 @@ flowchart LR
   Bitmap --> Worker[MediaPipe worker / WASM]
   Worker --> Gestures[Normalized hand gestures]
   Gestures --> GPU
-  GPU --> Canvas[Interactive canvas / PNG export]
+  GPU --> Canvas[Interactive canvas / image + video export]
 ```
 
 The geometry buffers upload on scene changes; animation updates uniforms instead of uploading every point each frame. Morphs begin from the currently interpolated positions, including when interrupted. Hand inference is throttled and runs outside the rendering thread, with only one frame in flight. Camera tracks and workers are released when hand control stops or the component unmounts.
 
 ## Scope and verification
 
-These are artistic mathematical scenes and visual force fields, not astrophysics, molecular dynamics or physically accurate N-body simulations. Webcam tracking depends on lighting, visibility and the device. Galaxy, Saturn, custom text, scene switching and the supernova control were checked in the restricted in-app browser; a real-camera gesture session is still pending. Automated checks cover geometry and gesture interpretation; production compilation and static-page generation are also checked.
+These are artistic mathematical scenes and visual force fields, not astrophysics, molecular dynamics or physically accurate N-body simulations. Webcam tracking depends on lighting, visibility and the device. The intro, galaxy, black hole, scene switching, field controls and responsive mobile layout were checked in the in-app browser with no console errors. A real-camera gesture session is still pending. Automated checks cover all mathematical geometry and gesture interpretation; production compilation and static-page generation are also checked.
 
 The optional `compose_particle_scene` WebMCP tool is feature-detected. Its registration and execution require a compatible host; that host integration has not been verified here.
 

@@ -4,8 +4,8 @@ import { generateScene } from '../lib/particles.ts';
 import { interpretHands } from '../lib/gestures.ts';
 
 test('all mathematical scenes produce finite, deterministic, bounded geometry', () => {
-  const names=['galaxy','saturn','sphere','dna','wave'];
-  for(const name of names){const a=generateScene(name,600);assert.equal(a.length,1800);assert.ok(a.every(Number.isFinite));assert.ok(a.every(x=>Math.abs(x)<3));assert.deepEqual(a,generateScene(name,600));}
+  const names=['galaxy','blackhole','saturn','dna','knot','wave','heart'];
+  for(const name of names){const a=generateScene(name,600);assert.equal(a.length,1800);assert.ok(a.every(Number.isFinite));assert.ok(a.every(x=>Math.abs(x)<3.5));assert.deepEqual(a,generateScene(name,600));}
   assert.notDeepEqual(generateScene('galaxy',100),generateScene('saturn',100));
 });
 test('Saturn preserves a visible gap between the core and rings',()=>{

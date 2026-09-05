@@ -5,7 +5,7 @@ export function registerComposerTools(actions:{selectScene:(scene:SceneName,text
   const context=(document as Document & {modelContext?:{registerTool:(tool:Tool,options:{signal:AbortSignal})=>void|Promise<void>}}).modelContext;
   if(!context?.registerTool)return;
   const lifecycle=new AbortController();
-  const sceneNames=['galaxy','saturn','sphere','dna','wave','text'];
+  const sceneNames=['galaxy','blackhole','saturn','dna','knot','wave','heart','text'];
   const tool:Tool={
     name:'compose_particle_scene',description:'Select a particle scene in Reality Composer, optionally setting the text for a signature scene.',
     inputSchema:{type:'object',properties:{scene:{type:'string',enum:sceneNames},text:{type:'string',maxLength:12}},required:['scene'],additionalProperties:false},

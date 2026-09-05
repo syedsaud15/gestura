@@ -1,4 +1,4 @@
-export type SceneName = 'galaxy' | 'saturn' | 'sphere' | 'dna' | 'wave' | 'text';
+export type SceneName = 'galaxy' | 'blackhole' | 'saturn' | 'dna' | 'knot' | 'wave' | 'heart' | 'text';
 export interface ParticleController { configure(p: Partial<Config>):void; setScene(s:SceneName,text?:string):void; burst():void; resetView():void; setHand(x:number,y:number,scale:number,force:number):void; clearHand():void; setForce(force:number):void; dispose():void; }
 type Config = { speed: number; spread: number; glow: number; rotate: boolean; paused: boolean; palette: string[] };
 const TAU = Math.PI * 2;
@@ -18,6 +18,9 @@ export function generateScene(name: SceneName, count: number, text = 'CREATE'): 
       const core = i % 5 === 0, r = core ? Math.pow(u, 1.8) * .75 : Math.pow(u, .7) * 2.65;
       const angle = (i % 4) * TAU / 4 + r * 2.25 + (v - .5) * (.25 + .5 * r);
       x = Math.cos(angle) * r; y = Math.sin(angle) * r; z = (w - .5) * (core ? .6 : .19) * (1 - r / 3.5);
+    } else if (name === 'blackhole') {
+      if(i<count*.8){const r=.42+Math.pow(u,.58)*2.75,t=v*TAU+r*1.5;x=Math.cos(t)*r;y=Math.sin(t)*r;z=(w-.5)*.1*(.3+r);}
+      else {const side=i%2?1:-1,r=Math.pow(u,1.7)*2.5,t=v*TAU;x=Math.cos(t)*r*.12;y=Math.sin(t)*r*.12;z=side*(.35+r);}
     } else if (name === 'saturn') {
       if (i < count * .42) { const t = u * TAU, p = Math.acos(2 * v - 1), r = .94 + w * .05; x = r * Math.sin(p) * Math.cos(t); y = r * Math.sin(p) * Math.sin(t); z = r * Math.cos(p); }
       else { const r = 1.38 + u * 1.15, t = v * TAU; x = Math.cos(t) * r; y = Math.sin(t) * r; z = (w - .5) * .045; }
@@ -26,7 +29,9 @@ export function generateScene(name: SceneName, count: number, text = 'CREATE'): 
       const bridge = i % 5 === 0, r = bridge ? (v * 2 - 1) * .83 : .83 + (v - .5) * .09;
       const h2 = bridge ? Math.round(h * 8) / 8 : h;
       x = Math.cos(bridge ? h2 * 3.1 : t) * r; y = h2; z = Math.sin(bridge ? h2 * 3.1 : t) * r + (w - .5) * .06;
-    } else if (name === 'wave') { x = (u - .5) * 5.4; y = (v - .5) * 4.5; z = Math.sin(x * 2) * Math.cos(y * 2) * .36 + (w - .5) * .06; }
+    } else if (name === 'knot') { const t=u*TAU*2,r=1.35+.5*Math.cos(3*t);x=r*Math.cos(2*t)+(w-.5)*.07;y=r*Math.sin(2*t)+(v-.5)*.07;z=.5*Math.sin(3*t)+(w-.5)*.07; }
+    else if (name === 'wave') { x = (u - .5) * 5.4; y = (v - .5) * 4.5; z = Math.sin(x * 2) * Math.cos(y * 2) * .36 + (w - .5) * .06; }
+    else if(name==='heart'){const t=u*TAU;x=Math.pow(Math.sin(t),3)*1.55;y=(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))/10-.25;z=(v-.5)*.55*(1-Math.min(1,Math.abs(x)/2.6))+(w-.5)*.05;}
     else if (name === 'text' && pixels.length) { const p = pixels[Math.floor(u * pixels.length)]; x = p[0] + (v - .5) * .018; y = p[1]; z = (w - .5) * .2; }
     else { const t = u * TAU, p = Math.acos(2 * v - 1), r = 1.68 + Math.sin(t * 6) * .05 + (w - .5) * .06; x = r * Math.sin(p) * Math.cos(t); y = r * Math.sin(p) * Math.sin(t); z = r * Math.cos(p); }
     a.set([x, y, z], i * 3);
@@ -42,7 +47,7 @@ void main(){
  float m=uMorph*uMorph*(3.0-2.0*uMorph); vec3 p=mix(aFrom,aTo,m);
  if(uStar<0.5){
  p.z+=sin(p.x*2.0+uTime)*cos(p.y*2.0+uTime*.6)*.22*uWave;
- p+=normalize(p+vec3(.01))*uBurst*(.7+aSeed*2.0); p*=uSpread;
+ p+=normalize(p+vec3(.01))*uBurst*(.7+aSeed*2.0); p*=uSpread*(1.0+sin(uTime*1.7+aSeed*21.0)*.012);
  float cx=cos(uRotX),sx=sin(uRotX),cy=cos(uRotY),sy=sin(uRotY);
  p=vec3(p.x,p.y*cx-p.z*sx,p.y*sx+p.z*cx);
  p=vec3(p.x*cy+p.z*sy,p.y,-p.x*sy+p.z*cy);
@@ -92,9 +97,9 @@ export class ParticleEngine {
   }
   private resize(){const d=Math.min(window.devicePixelRatio||1,1.8);this.canvas.width=Math.round(this.canvas.clientWidth*d);this.canvas.height=Math.round(this.canvas.clientHeight*d);this.gl.viewport(0,0,this.canvas.width,this.canvas.height);}
   configure(p: Partial<Config>){Object.assign(this.config,p);}
-  setScene(s: SceneName,text='CREATE'){const m=this.morph*this.morph*(3-2*this.morph);for(let i=0;i<this.from.length;i++)this.from[i]+=(this.to[i]-this.from[i])*m;this.to=generateScene(s,this.count,text);this.morph=this.reducedMotion?1:0;this.scene=s;this.rotation.x=s==='text'?.04:s==='dna'?.1:.68;this.rotation.y=-.18;this.dirty=true;}
+  setScene(s: SceneName,text='CREATE'){const m=this.morph*this.morph*(3-2*this.morph);for(let i=0;i<this.from.length;i++)this.from[i]+=(this.to[i]-this.from[i])*m;this.to=generateScene(s,this.count,text);this.morph=this.reducedMotion?1:0;this.scene=s;this.rotation.x=s==='text'||s==='heart'?.04:s==='dna'?.1:.68;this.rotation.y=-.18;this.dirty=true;}
   burst(){this.blast=2.1;}
-  resetView(){this.rotation={x:this.scene==='text'?.04:this.scene==='dna'?.1:.68,y:-.18};this.zoom=2.05;this.handScale=1;this.force=0;}
+  resetView(){this.rotation={x:this.scene==='text'||this.scene==='heart'?.04:this.scene==='dna'?.1:.68,y:-.18};this.zoom=2.05;this.handScale=1;this.force=0;}
   setHand(x:number,y:number,scale:number,force:number){this.hasHand=true;this.pointer={x:(x-.5)*6,y:(.5-y)*5};this.rotation.y+=(x-.5)*.015;this.handScale+=(scale-this.handScale)*.12;this.force=force;}
   clearHand(){this.hasHand=false;this.handScale=1;this.force=this.fieldForce;}
   setForce(force:number){this.fieldForce=force;if(!this.hasHand)this.force=force;}
