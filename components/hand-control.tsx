@@ -25,7 +25,7 @@ export function HandControl({ engine, onTelemetry }: { engine: { current: Partic
       if(run!==generation.current){media.getTracks().forEach(t=>t.stop());return;}
       stream.current=media; const v=video.current!;v.srcObject=media;await v.play();
       if(run!==generation.current)return;
-      const w=new Worker('/hand-worker.js');worker.current=w;
+      const base=import.meta.env.BASE_URL;const w=new Worker(`${base}hand-worker.js`);worker.current=w;
       const fail=()=>{if(run!==generation.current)return;stop();setState('off');setFailure('Hand tracking could not start. Please retry; mouse controls still work.');};
       initTimer.current=setTimeout(fail,45000); w.onerror=fail;
       w.onmessage=({data})=>{
@@ -49,7 +49,7 @@ export function HandControl({ engine, onTelemetry }: { engine: { current: Partic
         busy.current=true;lastFrame=now;lastVideo=v.currentTime;
         try{const bitmap=await createImageBitmap(v);if(!active.current||run!==generation.current){bitmap.close();return;}sentAt.current=performance.now();w.postMessage({type:'frame',bitmap,timestamp:now},[bitmap]);}catch{busy.current=false;}
       }
-      w.postMessage({type:'init'});
+      w.postMessage({type:'init',base});
     } catch(error) {
       if(run!==generation.current)return;stop();setState('off');
       setFailure(error instanceof DOMException && error.name==='NotAllowedError' ? 'Camera is blocked here. Open this link in Chrome or Edge, allow Camera, then retry.' : error instanceof DOMException && error.name==='NotFoundError' ? 'No webcam found. Connect one, or use the mouse controls.' : 'Camera is unavailable. Close other camera apps and retry.');

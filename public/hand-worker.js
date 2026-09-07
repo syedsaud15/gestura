@@ -3,10 +3,11 @@ let detector;
 self.onmessage = async ({ data }) => {
   if (data.type === 'init') {
     try {
-      const { FilesetResolver, HandLandmarker } = await import('/vision/vision_bundle.mjs');
-      const files = await FilesetResolver.forVisionTasks('/vision');
+      const base = data.base || '/';
+      const { FilesetResolver, HandLandmarker } = await import(`${base}vision/vision_bundle.mjs`);
+      const files = await FilesetResolver.forVisionTasks(`${base}vision`);
       detector = await HandLandmarker.createFromOptions(files, {
-        baseOptions: { modelAssetPath: '/vision/hand_landmarker.task', delegate: 'CPU' },
+        baseOptions: { modelAssetPath: `${base}vision/hand_landmarker.task`, delegate: 'CPU' },
         runningMode: 'VIDEO', numHands: 2,
         minHandDetectionConfidence: 0.6, minHandPresenceConfidence: 0.6, minTrackingConfidence: 0.6,
       });
