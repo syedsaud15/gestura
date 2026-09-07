@@ -1,75 +1,113 @@
-# GESTURA
+<p align="center">
+  <img src="docs/gestura-hero.svg" alt="GESTURA — Real-time hand controlled particle experience" width="100%" />
+</p>
 
-A real-time neural gesture physics engine. GESTURA tracks 21 hand landmarks on-device, classifies gestures in a dedicated worker and maps them into GPU particle-force uniforms at interactive frame rates.
+<p align="center">
+  <a href="https://syedsaud15.github.io/gestura/"><strong>Launch Live Experience</strong></a>
+  ·
+  <a href="#gestures">Gestures</a>
+  ·
+  <a href="#architecture">Architecture</a>
+</p>
 
-## Immersive release
+<p align="center">
+  <img alt="Pages" src="https://img.shields.io/github/actions/workflow/status/syedsaud15/gestura/deploy-pages.yml?label=LIVE%20BUILD&style=for-the-badge&color=9d63ff" />
+  <img alt="WebGL" src="https://img.shields.io/badge/WebGL-24K%20Particles-ff63bd?style=for-the-badge" />
+  <img alt="MediaPipe" src="https://img.shields.io/badge/MediaPipe-On--device%20Vision-66e5ca?style=for-the-badge" />
+</p>
 
-- Two purpose-built views: a clean Experience mode for demos and a live Engineering mode that exposes the complete computer-vision pipeline.
-- Visible skeletal landmark overlay, hand count, gesture state, inference latency, render rate and particle telemetry.
-- Three force kernels—gravity, orbit and repulsion—plus pinch attraction, fist compression and two-hand expansion.
+## Move your hand. Bend the light.
 
-- Eight deterministic scenes: Andromeda galaxy, black-hole singularity, Saturn, double helix, torus knot, wave field, heart field and custom signature.
-- GPU-interpolated transitions, additive particle glow and a supernova burst.
-- Drag to orbit, scroll to zoom, colour palettes, expansion and luminosity controls.
-- Hand tracking: palm movement, pinch attraction, fist collapse, open-palm burst and two-hand expansion.
-- Cinematic onboarding, fullscreen presentation, timed showcase, PNG export and one-click WebM showcase recording.
-- 24,000 WebGL particles on capable desktop browsers, with a Canvas fallback for restricted browser environments. FPS is measured live; it is not a promised frame rate.
+GESTURA is an interactive browser experiment that turns hand gestures into forces inside a 24,000-particle WebGL field. Pick a shape, enable the camera and manipulate light without touching the screen.
 
-## Run
+The full vision pipeline runs inside the browser. Camera frames stay on the device, MediaPipe inference runs in a Web Worker, and only normalized gesture data reaches the renderer.
 
-Requires Node.js 22.13+ and npm. Node.js 24 is recommended for native TypeScript configuration loading.
+### What makes it special
 
-```sh
-npm install
-npm run dev
-npm test
-npm run build
-```
+- **Seven morphing fields** — Galaxy, Wormhole, DNA, Knot, Wave, Heart and your own name.
+- **Natural interaction** — move, attract, compress, expand and explode particles with hand gestures.
+- **GPU animation** — geometry morphing and force response happen in a WebGL vertex shader.
+- **Smooth under pressure** — one inference frame stays in flight while rendering continues independently.
+- **Built for sharing** — fullscreen mode, automatic showcase, PNG capture and WebM recording.
+- **Graceful fallback** — a Canvas renderer keeps the experience available when WebGL is restricted.
 
-The static production site is in `dist/client`. Serve it over HTTPS (or localhost for development) for camera access. The complete hand model and WASM files are served from `public/vision`; no inference API or API key is required.
+## Gestures
 
-## Controls
+| Gesture | Particle response |
+| :---: | --- |
+| ✋ **Move palm** | Orbit and steer the field |
+| 🤏 **Pinch** | Pull particles toward your hand |
+| ✊ **Fist** | Compress the entire formation |
+| ✊ → ✋ **Open** | Trigger an energy burst |
+| 👐 **Two hands** | Expand or contract the field |
 
-| Input | Action |
-| --- | --- |
-| Drag / touch-drag | Orbit |
-| Scroll | Zoom |
-| Space | Pause / resume |
-| Left / right arrow | Select scene |
-| E | Impact burst |
-| H | Hide / show controls |
-| Escape | Leave presentation |
-| Pinch | Attract particles |
-| Fist → open palm | Collapse → burst |
-| Two hands apart | Expand |
+Mouse and touch controls work without a camera: drag to orbit, scroll to zoom, and use **Burst** for an explosion.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  UI[React controls] --> State[Scene parameters]
-  State --> Geometry[Seeded geometry generators]
-  Geometry --> GPU[WebGL point renderer]
-  Mouse[Mouse and touch] --> GPU
-  Camera[Opt-in camera] --> Bitmap[One frame in flight]
-  Bitmap --> Worker[MediaPipe worker / WASM]
-  Worker --> Gestures[Normalized hand gestures]
-  Gestures --> GPU
-  GPU --> Canvas[Interactive canvas / image + video export]
+    C[Camera 640×480] --> B[ImageBitmap]
+    B --> W[MediaPipe Worker]
+    W --> L[21 Hand Landmarks]
+    L --> G[Gesture Classifier]
+    G --> U[Force Uniforms]
+    S[Seeded Shape Generators] --> GPU[WebGL GPU Renderer]
+    U --> GPU
+    GPU --> P[24K Particle Field]
 ```
 
-The geometry buffers upload on scene changes; animation updates uniforms instead of uploading every point each frame. Morphs begin from the currently interpolated positions, including when interrupted. Hand inference is throttled and runs outside the rendering thread, with only one frame in flight. Camera tracks and workers are released when hand control stops or the component unmounts.
+The renderer uploads geometry only when a shape changes. Every animation frame updates compact uniforms for time, rotation, scale, pointer force and colour. Interrupted transitions continue from their current interpolated positions, so rapid scene changes remain smooth.
 
-## Scope and verification
+## Technology
 
-These are artistic mathematical scenes and visual force fields, not astrophysics, molecular dynamics or physically accurate N-body simulations. Webcam tracking depends on lighting, visibility and the device. The intro, galaxy, black hole, scene switching, field controls and responsive mobile layout were checked in the in-app browser with no console errors. A real-camera gesture session is still pending. Automated checks cover all mathematical geometry and gesture interpretation; production compilation and static-page generation are also checked.
+| Layer | Technology |
+| --- | --- |
+| Interface | React 19, TypeScript, Vinext/Vite |
+| Rendering | WebGL shaders with Canvas 2D fallback |
+| Computer vision | MediaPipe Hand Landmarker, local WASM/model |
+| Concurrency | Dedicated Web Worker, single-frame backpressure |
+| Export | Canvas PNG capture and MediaRecorder WebM |
+| Hosting | GitHub Pages through GitHub Actions |
 
-The optional `compose_particle_scene` WebMCP tool is feature-detected. Its registration and execution require a compatible host; that host integration has not been verified here.
+## Run locally
 
-## Credits
+Requires Node.js 22.13 or newer.
 
-Interface: React, Vinext/Vite, Tailwind CSS, Base UI/Shadcn, Lucide. Hand landmarks: [Google MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker/web_js), `@mediapipe/tasks-vision` 0.10.21 and the official float16 hand-landmarker model. See `THIRD_PARTY_NOTICES.md`.
+```bash
+git clone https://github.com/syedsaud15/gestura.git
+cd gestura
+npm install
+npm run dev
+```
 
-## Next milestones
+Open the local URL, press **Enable hand control**, allow camera access and hold your palm inside the preview.
 
-Real-device gesture calibration, measured performance profiles, touch pinch-to-zoom, music-reactive mode, and a short recorded demo. Public GitHub publication is a separate step.
+```bash
+npm test       # geometry and gesture checks
+npm run build  # static production build
+```
+
+## Privacy and performance
+
+- No camera frame is uploaded or stored.
+- Hand tracking stops and camera tracks close when the control is disabled.
+- Desktop targets 24,000 particles; smaller screens use 12,000.
+- Inference is throttled and isolated from the animation thread.
+- FPS shown in the interface is measured live on the current device.
+
+## Project layout
+
+```text
+app/                    experience UI and styling
+components/             hand-control and interface components
+lib/particles.ts        geometry generators + WebGL/Canvas engines
+lib/gestures.ts         gesture interpretation
+public/hand-worker.js   off-thread vision pipeline
+public/vision/          local MediaPipe runtime and model
+tests/                  deterministic geometry and gesture tests
+```
+
+---
+
+<p align="center"><strong>Designed and engineered by Syed Saud Alam</strong><br/>If this experiment inspired you, consider starring the repository.</p>
